@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section, .list-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+        }
+
+        .history-id {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .history-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .field {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .field-label {
+            font-weight: bold;
+            color: #6c757d;
+            font-size: 0.8em;
+        }
+
+        .field-value {
+            color: #495057;
+            margin-top: 2px;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 3em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🏛️ History Management</h1>
+        <p>Управление историей аудита банковских операций</p>
+    </div>
+
+    <div id="message" class="message" style="display: none;"></div>
+
+    <div class="content">
+        <!-- Форма для создания/редактирования -->
+        <div class="form-section">
+            <h2 class="section-title">📝 Управление записью</h2>
+            <form id="historyForm">
+                <input type="hidden" id="id">
+
+                <div class="form-group">
+                    <label for="transferAuditId">Transfer Audit ID:</label>
+                    <input type="number" id="transferAuditId" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="profileAuditId">Profile Audit ID:</label>
+                    <input type="number" id="profileAuditId">
+                </div>
+
+                <div class="form-group">
+                    <label for="accountAuditId">Account Audit ID:</label>
+                    <input type="number" id="accountAuditId">
+                </div>
+
+                <div class="form-group">
+                    <label for="antiFraudAuditId">Anti Fraud Audit ID:</label>
+                    <input type="number" id="antiFraudAuditId">
+                </div>
+
+                <div class="form-group">
+                    <label for="publicBankInfoAuditId">Public Bank Info Audit ID:</label>
+                    <input type="number" id="publicBankInfoAuditId">
+                </div>
+
+                <div class="form-group">
+                    <label for="authorizationAuditId">Authorization Audit ID:</label>
+                    <input type="number" id="authorizationAuditId">
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">💾 Сохранить</button>
+                    <button type="button" onclick="clearForm()" class="btn-secondary">🔄 Очистить</button>
+                    <button type="button" onclick="loadAllHistory()" class="btn-success">🔄 Обновить список</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Список записей -->
+        <div class="list-section">
+            <h2 class="section-title">📋 Список записей истории</h2>
+            <div id="historyList" class="history-list">
+                <div class="loading">Загрузка данных...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:8088/api/history';
+
+    // Загрузка всех записей при старте
+    document.addEventListener('DOMContentLoaded', loadAllHistory);
+
+    // Обработка формы
+    document.getElementById('historyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveHistory();
+    });
+
+    // Показать сообщение
+    function showMessage(text, type = 'success') {
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = text;
+        messageEl.className = `message ${type}`;
+        messageEl.style.display = 'block';
+
+        setTimeout(() => {
+            messageEl.style.display = 'none';
+        }, 5000);
+    }
+
+    // Загрузить все записи
+    async function loadAllHistory() {
+        try {
+            const response = await fetch(`${API_BASE}/getall`);
+            if (!response.ok) throw new Error('Ошибка загрузки данных');
+
+            const histories = await response.json();
+            displayHistories(histories);
+        } catch (error) {
+            showMessage('Ошибка загрузки данных: ' + error.message, 'error');
+        }
+    }
+
+    // Отобразить список записей
+    function displayHistories(histories) {
+        const listEl = document.getElementById('historyList');
+
+        if (!histories || histories.length === 0) {
+            listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div>📭</div>
+                        <h3>Нет данных</h3>
+                        <p>Записей истории не найдено</p>
+                    </div>
+                `;
+            return;
+        }
+
+        listEl.innerHTML = histories.map(history => `
+                <div class="history-item">
+                    <div class="history-id">Запись #${history.id}</div>
+                    <div class="history-fields">
+                        <div class="field">
+                            <div class="field-label">Transfer Audit</div>
+                            <div class="field-value">${history.transferAuditId || '—'}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Profile Audit</div>
+                            <div class="field-value">${history.profileAuditId || '—'}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Account Audit</div>
+                            <div class="field-value">${history.accountAuditId || '—'}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Anti Fraud</div>
+                            <div class="field-value">${history.antiFraudAuditId || '—'}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Bank Info</div>
+                            <div class="field-value">${history.publicBankInfoAuditId || '—'}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">Authorization</div>
+                            <div class="field-value">${history.authorizationAuditId || '—'}</div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button onclick="editHistory(${history.id})" class="btn-primary">✏️ Редактировать</button>
+                        <button onclick="deleteHistory(${history.id})" class="btn-danger">🗑️ Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    // Сохранить запись (создать или обновить)
+    async function saveHistory() {
+        const formData = {
+            id: document.getElementById('id').value || null,
+            transferAuditId: parseInt(document.getElementById('transferAuditId').value),
+            profileAuditId: document.getElementById('profileAuditId').value ? parseInt(document.getElementById('profileAuditId').value) : null,
+            accountAuditId: document.getElementById('accountAuditId').value ? parseInt(document.getElementById('accountAuditId').value) : null,
+            antiFraudAuditId: document.getElementById('antiFraudAuditId').value ? parseInt(document.getElementById('antiFraudAuditId').value) : null,
+            publicBankInfoAuditId: document.getElementById('publicBankInfoAuditId').value ? parseInt(document.getElementById('publicBankInfoAuditId').value) : null,
+            authorizationAuditId: document.getElementById('authorizationAuditId').value ? parseInt(document.getElementById('authorizationAuditId').value) : null
+        };
+
+        try {
+            let response;
+            if (formData.id) {
+                // Обновление существующей записи
+                response = await fetch(`${API_BASE}/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+            } else {
+                // Создание новой записи
+                response = await fetch(`${API_BASE}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+            }
+
+            if (!response.ok) throw new Error('Ошибка сохранения');
+
+            clearForm();
+            loadAllHistory();
+            showMessage(formData.id ? 'Запись успешно обновлена!' : 'Запись успешно создана!');
+        } catch (error) {
+            showMessage('Ошибка сохранения: ' + error.message, 'error');
+        }
+    }
+
+    // Редактировать запись
+    async function editHistory(id) {
+        try {
+            const response = await fetch(`${API_BASE}/get/${id}`);
+            if (!response.ok) throw new Error('Ошибка загрузки записи');
+
+            const history = await response.json();
+
+            // Заполняем форму данными
+            document.getElementById('id').value = history.id;
+            document.getElementById('transferAuditId').value = history.transferAuditId || '';
+            document.getElementById('profileAuditId').value = history.profileAuditId || '';
+            document.getElementById('accountAuditId').value = history.accountAuditId || '';
+            document.getElementById('antiFraudAuditId').value = history.antiFraudAuditId || '';
+            document.getElementById('publicBankInfoAuditId').value = history.publicBankInfoAuditId || '';
+            document.getElementById('authorizationAuditId').value = history.authorizationAuditId || '';
+
+            showMessage('Запись загружена для редактирования');
+        } catch (error) {
+            showMessage('Ошибка загрузки записи: ' + error.message, 'error');
+        }
+    }
+
+    // Удалить запись
+    async function deleteHistory(id) {
+        if (!confirm('Вы уверены, что хотите удалить эту запись?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/delete/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('Ошибка удаления');
+
+            loadAllHistory();
+            showMessage('Запись успешно удалена!');
+        } catch (error) {
+            showMessage('Ошибка удаления: ' + error.message, 'error');
+        }
+    }
+
+    // Очистить форму
+    function clearForm() {
+        document.getElementById('historyForm').reset();
+        document.getElementById('id').value = '';
+    }
+</script>
+</body>
+</html>

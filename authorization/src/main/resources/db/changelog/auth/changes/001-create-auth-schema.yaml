@@ -1,0 +1,140 @@
+databaseChangeLog:
+  - changeSet:
+      id: auth-001-create-roles
+      author: bank_system
+      changes:
+        - createTable:
+            tableName: roles
+            schemaName: auth
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: role_name
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+
+  - changeSet:
+      id: auth-002-create-users
+      author: bank_system
+      changes:
+        - createTable:
+            tableName: users
+            schemaName: auth
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: password_hash
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_users_role_id
+                    referencedTableName: roles
+                    referencedColumnNames: id
+              - column:
+                  name: profile_id
+                  type: bigint
+              - column:
+                  name: is_enabled
+                  type: boolean
+                  defaultValueBoolean: true
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+  - changeSet:
+      id: auth-003-insert-roles
+      author: bank_system
+      changes:
+        - insert:
+            tableName: roles
+            schemaName: auth
+            columns:
+              - column:
+                  name: role_name
+                  value: "client"
+              - column:
+                  name: description
+                  value: "Клиент банка"
+        - insert:
+            tableName: roles
+            schemaName: auth
+            columns:
+              - column:
+                  name: role_name
+                  value: "operator"
+              - column:
+                  name: description
+                  value: "Оператор поддержки"
+        - insert:
+            tableName: roles
+            schemaName: auth
+            columns:
+              - column:
+                  name: role_name
+                  value: "fraud_analyst"
+              - column:
+                  name: description
+                  value: "Аналитик антифрода"
+        - insert:
+            tableName: roles
+            schemaName: auth
+            columns:
+              - column:
+                  name: role_name
+                  value: "admin"
+              - column:
+                  name: description
+                  value: "Администратор"
+
+  - changeSet:
+      id: auth-004-insert-admin-user
+      author: bank_system
+      changes:
+        - insert:
+            tableName: users
+            schemaName: auth
+            columns:
+              - column:
+                  name: username
+                  value: "admin"
+              - column:
+                  name: password_hash
+                  value: "$2a$12$ABC123DEF456GHI789JKL.MNO1PQRST2UVWXYZ3ABCDEF4GHIJKLMNOP"
+              - column:
+                  name: role_id
+                  valueComputed: "(SELECT id FROM auth.roles WHERE role_name = 'admin')"
+              - column:
+                  name: profile_id
+                  value: "1"
+              - column:
+                  name: is_enabled
+                  valueBoolean: true

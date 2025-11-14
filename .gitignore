@@ -1,12 +1,9 @@
 /account/
 /antifraud/
-/authorization/
-/history/
 /public-info/
 /transfer/
 /profile/target/
 /profile/HELP.md
-/HELP.md
 /docker-compose.yml
 /checkstyle.xml
 /.gitignore
@@ -16,3 +13,26 @@
 /profile/src/main/resources/db/changelog/
 /profile/src/main/resources/account-dal-jpa.yaml
 /profile/src/main/resources/application.yaml
+# Типичные исключения для Java проекта
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# Логи
+*.log
+
+# Файлы IDE
+.idea/
+*.iml
+*.iws
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Конфиденциальные данные
+application.properties
+application-secret.properties
+/config/secret/
