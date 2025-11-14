@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Profile Management System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .user-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .user-menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+
+        .user-menu:hover .user-menu-dropdown {
+            display: block;
+        }
+
+        .user-menu-dropdown a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .user-menu-dropdown a:hover {
+            background-color: #eee;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal-wide {
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+<!-- User Menu -->
+<div class="user-menu">
+    <span id="username">Администратор</span> <span class="fas fa-caret-down"></span>
+    <div class="user-menu-dropdown">
+        <a href="#" onclick="showTab('profiles')">Профили</a>
+        <a href="#" onclick="showTab('passports')">Паспорта</a>
+        <a href="#" onclick="showTab('audit')">Аудит</a>
+        <a href="/logout">Выход</a>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="text-center">Система управления банковскими профилями</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="profiles-tab" data-toggle="tab" href="#profiles" role="tab">
+                        Профили
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="passports-tab" data-toggle="tab" href="#passports" role="tab">
+                        Паспорта
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="registrations-tab" data-toggle="tab" href="#registrations" role="tab">
+                        Регистрации
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="account-details-tab" data-toggle="tab" href="#account-details" role="tab">
+                        Детали счетов
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="audit-tab" data-toggle="tab" href="#audit" role="tab">
+                        Аудит
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <!-- Profiles Tab -->
+                <div class="tab-pane fade show active" id="profiles" role="tabpanel">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Управление профилями</h4>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#addProfileModal">
+                            Добавить профиль
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Телефон</th>
+                                <th>Email</th>
+                                <th>Имя на карте</th>
+                                <th>ИНН</th>
+                                <th>СНИЛС</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody id="profilesTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center">Загрузка данных...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Passports Tab -->
+                <div class="tab-pane fade" id="passports" role="tabpanel">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Управление паспортами</h4>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#addPassportModal">
+                            Добавить паспорт
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Серия</th>
+                                <th>Номер</th>
+                                <th>ФИО</th>
+                                <th>Дата рождения</th>
+                                <th>Кем выдан</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody id="passportsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center">Загрузка данных...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Registrations Tab -->
+                <div class="tab-pane fade" id="registrations" role="tabpanel">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Управление регистрациями</h4>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#addRegistrationModal">
+                            Добавить регистрацию
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Страна</th>
+                                <th>Город</th>
+                                <th>Улица</th>
+                                <th>Дом</th>
+                                <th>Индекс</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody id="registrationsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center">Загрузка данных...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Account Details Tab -->
+                <div class="tab-pane fade" id="account-details" role="tabpanel">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Детали банковских счетов</h4>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#addAccountDetailsModal">
+                            Добавить детали счета
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ID счета</th>
+                                <th>ID профиля</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody id="accountDetailsTableBody">
+                            <tr>
+                                <td colspan="4" class="text-center">Загрузка данных...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Audit Tab -->
+                <div class="tab-pane fade" id="audit" role="tabpanel">
+                    <h4>Журнал аудита</h4>
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Тип сущности</th>
+                                <th>Тип операции</th>
+                                <th>Создано</th>
+                                <th>Кем создано</th>
+                                <th>Время создания</th>
+                            </tr>
+                            </thead>
+                            <tbody id="auditTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">Загрузка данных...</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Profile Modal -->
+<div class="modal fade" id="addProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить профиль</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="profileForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="phoneNumber">Телефон:</label>
+                                <input type="number" class="form-control" id="phoneNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" class="form-control" id="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="nameOnCard">Имя на карте:</label>
+                                <input type="text" class="form-control" id="nameOnCard">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="inn">ИНН:</label>
+                                <input type="number" class="form-control" id="inn">
+                            </div>
+                            <div class="form-group">
+                                <label for="snils">СНИЛС:</label>
+                                <input type="number" class="form-control" id="snils">
+                            </div>
+                            <div class="form-group">
+                                <label for="actualRegistrationId">ID актуальной регистрации:</label>
+                                <input type="number" class="form-control" id="actualRegistrationId">
+                            </div>
+                            <div class="form-group">
+                                <label for="passportId">ID паспорта:</label>
+                                <input type="number" class="form-control" id="passportId" required>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="addProfile()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Passport Modal -->
+<div class="modal fade" id="addPassportModal" tabindex="-1">
+    <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить паспорт</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="passportForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="passportSeries">Серия:</label>
+                                <input type="number" class="form-control" id="passportSeries" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="passportNumber">Номер:</label>
+                                <input type="number" class="form-control" id="passportNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Фамилия:</label>
+                                <input type="text" class="form-control" id="lastName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="firstName">Имя:</label>
+                                <input type="text" class="form-control" id="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="middleName">Отчество:</label>
+                                <input type="text" class="form-control" id="middleName">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="gender">Пол:</label>
+                                <input type="text" class="form-control" id="gender">
+                            </div>
+                            <div class="form-group">
+                                <label for="birthDate">Дата рождения:</label>
+                                <input type="date" class="form-control" id="birthDate">
+                            </div>
+                            <div class="form-group">
+                                <label for="birthPlace">Место рождения:</label>
+                                <input type="text" class="form-control" id="birthPlace">
+                            </div>
+                            <div class="form-group">
+                                <label for="issuedBy">Кем выдан:</label>
+                                <input type="text" class="form-control" id="issuedBy">
+                            </div>
+                            <div class="form-group">
+                                <label for="divisionCode">Код подразделения:</label>
+                                <input type="number" class="form-control" id="divisionCode">
+                            </div>
+                            <div class="form-group">
+                                <label for="registrationId">ID регистрации:</label>
+                                <input type="number" class="form-control" id="registrationId" required>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="addPassport()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Registration Modal -->
+<div class="modal fade" id="addRegistrationModal" tabindex="-1">
+    <div class="modal-dialog modal-wide">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить регистрацию</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registrationForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="regCountry">Страна:</label>
+                                <input type="text" class="form-control" id="regCountry" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regRegion">Регион:</label>
+                                <input type="text" class="form-control" id="regRegion">
+                            </div>
+                            <div class="form-group">
+                                <label for="regCity">Город:</label>
+                                <input type="text" class="form-control" id="regCity">
+                            </div>
+                            <div class="form-group">
+                                <label for="regDistrict">Район:</label>
+                                <input type="text" class="form-control" id="regDistrict">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="regStreet">Улица:</label>
+                                <input type="text" class="form-control" id="regStreet">
+                            </div>
+                            <div class="form-group">
+                                <label for="regHouseNumber">Номер дома:</label>
+                                <input type="text" class="form-control" id="regHouseNumber">
+                            </div>
+                            <div class="form-group">
+                                <label for="regFlatNumber">Номер квартиры:</label>
+                                <input type="text" class="form-control" id="regFlatNumber">
+                            </div>
+                            <div class="form-group">
+                                <label for="regIndex">Индекс:</label>
+                                <input type="number" class="form-control" id="regIndex" required>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="addRegistration()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Account Details Modal -->
+<div class="modal fade" id="addAccountDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Добавить детали счета</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="accountDetailsForm">
+                    <div class="form-group">
+                        <label for="accountId">ID счета:</label>
+                        <input type="number" class="form-control" id="accountId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileId">ID профиля:</label>
+                        <input type="number" class="form-control" id="profileId" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="addAccountDetails()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Базовые функции для работы с API
+    const API_BASE = 'http://localhost:8089';
+
+    // Загрузка данных при открытии вкладки
+    $('#profiles-tab').on('click', function() {
+        loadProfiles();
+    });
+
+    $('#passports-tab').on('click', function() {
+        loadPassports();
+    });
+
+    $('#registrations-tab').on('click', function() {
+        loadRegistrations();
+    });
+
+    $('#account-details-tab').on('click', function() {
+        loadAccountDetails();
+    });
+
+    $('#audit-tab').on('click', function() {
+        loadAudit();
+    });
+
+    function loadProfiles() {
+        $('#profilesTableBody').html('<tr><td colspan="7" class="text-center">Загрузка данных...</td></tr>');
+
+        fetch(`${API_BASE}/profile/getall`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    $('#profilesTableBody').html('<tr><td colspan="7" class="text-center">Нет данных</td></tr>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(profile => {
+                    html += `
+                            <tr>
+                                <td>${profile.id}</td>
+                                <td>${profile.phoneNumber || '-'}</td>
+                                <td>${profile.email || '-'}</td>
+                                <td>${profile.nameOnCard || '-'}</td>
+                                <td>${profile.inn || '-'}</td>
+                                <td>${profile.snils || '-'}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-warning" onclick="editProfile(${profile.id})">Изменить</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteProfile(${profile.id})">Удалить</button>
+                                </td>
+                            </tr>
+                        `;
+                });
+                $('#profilesTableBody').html(html);
+            })
+            .catch(error => {
+                console.error('Error loading profiles:', error);
+                $('#profilesTableBody').html('<tr><td colspan="7" class="text-center">Ошибка загрузки данных</td></tr>');
+            });
+    }
+
+    function loadPassports() {
+        $('#passportsTableBody').html('<tr><td colspan="7" class="text-center">Загрузка данных...</td></tr>');
+
+        fetch(`${API_BASE}/passport/getall`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    $('#passportsTableBody').html('<tr><td colspan="7" class="text-center">Нет данных</td></tr>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(passport => {
+                    html += `
+                            <tr>
+                                <td>${passport.id}</td>
+                                <td>${passport.series || '-'}</td>
+                                <td>${passport.number || '-'}</td>
+                                <td>${passport.lastName || ''} ${passport.firstName || ''} ${passport.middleName || ''}</td>
+                                <td>${passport.birthDate || '-'}</td>
+                                <td>${passport.issuedBy || '-'}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-warning" onclick="editPassport(${passport.id})">Изменить</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deletePassport(${passport.id})">Удалить</button>
+                                </td>
+                            </tr>
+                        `;
+                });
+                $('#passportsTableBody').html(html);
+            })
+            .catch(error => {
+                console.error('Error loading passports:', error);
+                $('#passportsTableBody').html('<tr><td colspan="7" class="text-center">Ошибка загрузки данных</td></tr>');
+            });
+    }
+
+    function loadRegistrations() {
+        $('#registrationsTableBody').html('<tr><td colspan="7" class="text-center">Загрузка данных...</td></tr>');
+
+        fetch(`${API_BASE}/registration/getall`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    $('#registrationsTableBody').html('<tr><td colspan="7" class="text-center">Нет данных</td></tr>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(registration => {
+                    html += `
+                            <tr>
+                                <td>${registration.id}</td>
+                                <td>${registration.country || '-'}</td>
+                                <td>${registration.city || '-'}</td>
+                                <td>${registration.street || '-'}</td>
+                                <td>${registration.houseNumber || '-'}</td>
+                                <td>${registration.index || '-'}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-warning" onclick="editRegistration(${registration.id})">Изменить</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteRegistration(${registration.id})">Удалить</button>
+                                </td>
+                            </tr>
+                        `;
+                });
+                $('#registrationsTableBody').html(html);
+            })
+            .catch(error => {
+                console.error('Error loading registrations:', error);
+                $('#registrationsTableBody').html('<tr><td colspan="7" class="text-center">Ошибка загрузки данных</td></tr>');
+            });
+    }
+
+    function loadAccountDetails() {
+        $('#accountDetailsTableBody').html('<tr><td colspan="4" class="text-center">Загрузка данных...</td></tr>');
+
+        fetch(`${API_BASE}/accountdetailsid/getall`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    $('#accountDetailsTableBody').html('<tr><td colspan="4" class="text-center">Нет данных</td></tr>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(details => {
+                    html += `
+                            <tr>
+                                <td>${details.id}</td>
+                                <td>${details.accountId || '-'}</td>
+                                <td>${details.profileAccountDetailsId || '-'}</td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-warning" onclick="editAccountDetails(${details.id})">Изменить</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteAccountDetails(${details.id})">Удалить</button>
+                                </td>
+                            </tr>
+                        `;
+                });
+                $('#accountDetailsTableBody').html(html);
+            })
+            .catch(error => {
+                console.error('Error loading account details:', error);
+                $('#accountDetailsTableBody').html('<tr><td colspan="4" class="text-center">Ошибка загрузки данных</td></tr>');
+            });
+    }
+
+    function loadAudit() {
+        $('#auditTableBody').html('<tr><td colspan="6" class="text-center">Загрузка данных...</td></tr>');
+
+        fetch(`${API_BASE}/audit/getall`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    $('#auditTableBody').html('<tr><td colspan="6" class="text-center">Нет данных</td></tr>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(audit => {
+                    html += `
+                            <tr>
+                                <td>${audit.id}</td>
+                                <td>${audit.entityType || '-'}</td>
+                                <td>${audit.operationType || '-'}</td>
+                                <td>${audit.createdBy || '-'}</td>
+                                <td>${audit.modifiedBy || '-'}</td>
+                                <td>${audit.createdAt || '-'}</td>
+                            </tr>
+                        `;
+                });
+                $('#auditTableBody').html(html);
+            })
+            .catch(error => {
+                console.error('Error loading audit:', error);
+                $('#auditTableBody').html('<tr><td colspan="6" class="text-center">Ошибка загрузки данных</td></tr>');
+            });
+    }
+
+    // Функции добавления новых записей
+    function addProfile() {
+        const profileData = {
+            phoneNumber: $('#phoneNumber').val() ? parseInt($('#phoneNumber').val()) : null,
+            email: $('#email').val() || null,
+            nameOnCard: $('#nameOnCard').val() || null,
+            inn: $('#inn').val() ? parseInt($('#inn').val()) : null,
+            snils: $('#snils').val() ? parseInt($('#snils').val()) : null,
+            actualRegistrationProfile: $('#actualRegistrationId').val() ? parseInt($('#actualRegistrationId').val()) : null,
+            passportProfile: parseInt($('#passportId').val())
+        };
+
+        fetch(`${API_BASE}/profile/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profileData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    $('#addProfileModal').modal('hide');
+                    loadProfiles();
+                    alert('Профиль успешно добавлен!');
+                } else {
+                    alert('Ошибка при добавлении профиля');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении профиля');
+            });
+    }
+
+    function addPassport() {
+        const passportData = {
+            series: parseInt($('#passportSeries').val()),
+            number: parseInt($('#passportNumber').val()),
+            lastName: $('#lastName').val(),
+            firstName: $('#firstName').val(),
+            middleName: $('#middleName').val() || null,
+            gender: $('#gender').val() || null,
+            birthDate: $('#birthDate').val() || null,
+            birthPlace: $('#birthPlace').val() || null,
+            issuedBy: $('#issuedBy').val() || null,
+            divisionCode: $('#divisionCode').val() ? parseInt($('#divisionCode').val()) : null,
+            registrationPassport: parseInt($('#registrationId').val())
+        };
+
+        fetch(`${API_BASE}/passport/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(passportData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    $('#addPassportModal').modal('hide');
+                    loadPassports();
+                    alert('Паспорт успешно добавлен!');
+                } else {
+                    alert('Ошибка при добавлении паспорта');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении паспорта');
+            });
+    }
+
+    function addRegistration() {
+        const registrationData = {
+            country: $('#regCountry').val(),
+            region: $('#regRegion').val() || null,
+            city: $('#regCity').val() || null,
+            district: $('#regDistrict').val() || null,
+            street: $('#regStreet').val() || null,
+            houseNumber: $('#regHouseNumber').val() || null,
+            flatNumber: $('#regFlatNumber').val() || null,
+            index: parseInt($('#regIndex').val())
+        };
+
+        fetch(`${API_BASE}/registration/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(registrationData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    $('#addRegistrationModal').modal('hide');
+                    loadRegistrations();
+                    alert('Регистрация успешно добавлена!');
+                } else {
+                    alert('Ошибка при добавлении регистрации');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении регистрации');
+            });
+    }
+
+    function addAccountDetails() {
+        const accountDetailsData = {
+            accountId: parseInt($('#accountId').val()),
+            profileAccountDetailsId: parseInt($('#profileId').val())
+        };
+
+        fetch(`${API_BASE}/accountdetailsid/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(accountDetailsData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    $('#addAccountDetailsModal').modal('hide');
+                    loadAccountDetails();
+                    alert('Детали счета успешно добавлены!');
+                } else {
+                    alert('Ошибка при добавлении деталей счета');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении деталей счета');
+            });
+    }
+
+    // Вспомогательные функции
+    function showTab(tabName) {
+        $(`#${tabName}-tab`).tab('show');
+    }
+
+    function editProfile(id) {
+        alert(`Редактирование профиля с ID: ${id} - функциональность в разработке`);
+    }
+
+    function deleteProfile(id) {
+        if (confirm('Вы уверены, что хотите удалить этот профиль?')) {
+            fetch(`${API_BASE}/profile/delete/${id}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        loadProfiles();
+                        alert('Профиль успешно удален!');
+                    } else {
+                        alert('Ошибка при удалении профиля');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при удалении профиля');
+                });
+        }
+    }
+
+    // Загружаем профили при загрузке страницы
+    $(document).ready(function() {
+        loadProfiles();
+    });
+</script>
+</body>
+</html>
