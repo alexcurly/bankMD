@@ -42,14 +42,14 @@
 
 ### Микросервисная структура
 parent/ (корневой POM)
-├── 📱 profile/ - Профили клиентов
-├── 💳 account/ - Банковские счета
-├── 🔄 transfer/ - Переводы и транзакции
-├── 🕵️ antifraud/ - Антифрод система
-├── 📊 history/ - История операций
-├── 🏢 public-info/ - Публичная информация
-├── 🔐 authorization/ - Аутентификация
-└── 🌐 eureka-service/ - Service Discovery
+- 📱 profile/ - Профили клиентов
+- 💳 account/ - Банковские счета
+- 🔄 transfer/ - Переводы и транзакции
+- 🕵️ antifraud/ - Антифрод система
+- 📊 history/ - История операций
+- 🏢 public-info/ - Публичная информация
+- 🔐 authorization/ - Аутентификация
+- 🌐 eureka-service/ - Service Discovery
 
 ### Схема взаимодействия
 Клиент → API Gateway → [Микросервисы] ←→ Eureka Server
